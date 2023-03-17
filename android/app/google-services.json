@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "488182959897",
+    "project_id": "emarketapptr",
+    "storage_bucket": "emarketapptr.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:488182959897:android:2b776a7aa66559f1767f88",
+        "android_client_info": {
+          "package_name": "com.encode.emarketapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "488182959897-9d3deh7rri8361llhmesr4tlt5s6vb35.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCoT5kpxQAAv7VjuVJD_AJ4_v0qYz_0huI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "488182959897-9d3deh7rri8361llhmesr4tlt5s6vb35.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
