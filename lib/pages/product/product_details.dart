@@ -14,8 +14,9 @@ import '../../models/myuser.dart';
 
 class ProductDetails extends StatefulWidget {
   Product product;
-  final Function? callBack;
-  ProductDetails({Key? key, required this.product, this.callBack}) : super(key: key);
+  final Function? deleteCallBack;
+  final Function? addCallBack;
+  ProductDetails({Key? key, required this.product, this.deleteCallBack, this.addCallBack}) : super(key: key);
 
   @override
   State<ProductDetails> createState() => _ProductDetailsState();
@@ -63,7 +64,6 @@ class _ProductDetailsState extends State<ProductDetails> {
         setState(() {
           isOnCart = true;
           counter = cartItem.carpan! ~/ widget.product.carpan!;
-
           setButtonText();
         });
       }
@@ -162,22 +162,31 @@ class _ProductDetailsState extends State<ProductDetails> {
             icon: isFav ? const Icon(Icons.favorite_sharp) : const Icon(Icons.favorite_outline),
             onPressed: () {
               debugPrint(product.id);
+
               if (mAuth.currentUser != null) {
                 if (isFav) {
                   if (favIndex != -1) {
                     UserApiClient().deleteFavFromUser(mAuth.currentUser!.uid, favIndex);
+                    favsList.removeAt(favIndex);
                     showSnackBar(context: context, msg: 'Ürün favorilerden silindi.', type: 'info');
-                    widget.callBack!(product.id); //call callBack method
+                    if (widget.deleteCallBack != null) {
+                      widget.deleteCallBack!(product.id); //call callBack method
+                    }
+                    changeIsFavState();
                   }
                 } else {
                   if (favsList.isEmpty) {
                     favIndex = 0;
                   }
                   favIndex = favsList.length;
+                  favsList.add(Fav(id: product.id, name: product.ad, resim: product.resim));
+                  if (widget.addCallBack != null) {
+                    widget.addCallBack!(Fav(id: product.id, name: product.ad, resim: product.resim));
+                  }
                   UserApiClient().addFavToUser(mAuth.currentUser!.uid, Fav(id: product.id, name: product.ad, resim: product.resim));
                   showSnackBar(context: context, msg: 'Ürün favorilere eklendi.', type: 'info');
+                  changeIsFavState();
                 }
-                changeIsFavState();
               }
             },
           ),

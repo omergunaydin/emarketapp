@@ -60,6 +60,12 @@ class _AccountFavsPageState extends State<AccountFavsPage> {
     }
   }
 
+  addFavToList(Fav fav) {
+    setState(() {
+      favsList.add(fav);
+    });
+  }
+
   showUserFav(String favId) async {
     print(favId);
     final docProduct = _productsRef.doc(favId);
@@ -72,7 +78,7 @@ class _AccountFavsPageState extends State<AccountFavsPage> {
         context,
         PageTransition(
           type: PageTransitionType.bottomToTop,
-          child: ProductDetails(product: product, callBack: deleteFavFromList),
+          child: ProductDetails(product: product, deleteCallBack: deleteFavFromList, addCallBack: addFavToList),
         ),
       );
     }
