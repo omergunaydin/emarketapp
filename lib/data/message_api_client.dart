@@ -6,6 +6,5 @@ class MessageApiClient {
 
   Future addMessage(Message message) async {
     await _messagesRef.add(message.toJson());
-    print('eklendi');
   }
 }

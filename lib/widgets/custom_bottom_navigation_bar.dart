@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emarketapp/constants/dimens/uihelper.dart';
 import 'package:emarketapp/constants/values/colors.dart';
 import 'package:emarketapp/constants/values/constants.dart';
+import 'package:emarketapp/models/myuser.dart';
 import 'package:emarketapp/pages/cart/cart_page.dart';
 import 'package:emarketapp/pages/qrcode/qr_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,11 +26,14 @@ class CustomBottomNavigationBar extends StatefulWidget {
 
 class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   late int _selectedIndex;
+  FirebaseAuth mAuth = FirebaseAuth.instance;
+  late Stream<DocumentSnapshot> userStream;
 
   @override
   void initState() {
     super.initState();
     _selectedIndex = widget.selectedIndex;
+    userStream = FirebaseFirestore.instance.collection('users').doc(mAuth.currentUser!.uid).snapshots();
   }
 
   void changeTabSelectedIndex(int value) {
@@ -123,15 +128,90 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
           label: 'QR Code',
         ),
         BottomNavigationBarItem(
-            icon: Column(
-              children: [
-                Icon(MdiIcons.basket, color: _selectedIndex == 3 ? UiColorHelper.mainBlue : Colors.black),
-                Text(
-                  'Sepet',
-                  style: Theme.of(context).textTheme.caption!.copyWith(color: _selectedIndex == 3 ? UiColorHelper.mainBlue : Colors.black),
-                )
-              ],
-            ),
+            icon: StreamBuilder<User?>(
+                stream: FirebaseAuth.instance.authStateChanges(),
+                builder: (context, snapshot) {
+                  // user logged in
+                  if (snapshot.hasData) {
+                    //if user logged in then check user cart!
+                    return StreamBuilder<DocumentSnapshot>(
+                        stream: userStream,
+                        builder: (context, snapshot) {
+                          //if user cart not hasData or error
+                          if (!snapshot.hasData || snapshot.hasError) {
+                            return Column(
+                              children: [
+                                Icon(
+                                  MdiIcons.basket,
+                                  color: _selectedIndex == 3 ? UiColorHelper.mainBlue : Colors.black,
+                                ),
+                                Text(
+                                  'Sepet',
+                                  style: Theme.of(context).textTheme.caption!.copyWith(color: _selectedIndex == 3 ? UiColorHelper.mainBlue : Colors.black),
+                                )
+                              ],
+                            );
+                            //if has data
+                          } else {
+                            MyUser user = MyUser.fromJson(snapshot.data!.data() as Map<String, dynamic>);
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Center(
+                                      child: Icon(
+                                        MdiIcons.basket,
+                                        color: _selectedIndex == 3 ? UiColorHelper.mainBlue : Colors.black,
+                                      ),
+                                    ),
+                                    user.cart!.isEmpty
+                                        ? const SizedBox.shrink()
+                                        : Positioned(
+                                            top: 0,
+                                            right: 20,
+                                            child: Container(
+                                              width: 15,
+                                              height: 15,
+                                              decoration: BoxDecoration(
+                                                color: UiColorHelper.mainRed,
+                                                borderRadius: BorderRadius.circular(20),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  '${user.cart!.length}',
+                                                  style: Theme.of(context).textTheme.caption!.copyWith(color: Colors.white),
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                  ],
+                                ),
+                                Text(
+                                  'Sepet',
+                                  style: Theme.of(context).textTheme.caption!.copyWith(color: _selectedIndex == 3 ? UiColorHelper.mainBlue : Colors.black),
+                                )
+                              ],
+                            );
+                          }
+                        });
+                  } else {
+                    return Column(
+                      children: [
+                        Icon(
+                          MdiIcons.basket,
+                          color: _selectedIndex == 3 ? UiColorHelper.mainBlue : Colors.black,
+                        ),
+                        Text(
+                          'Sepet',
+                          style: Theme.of(context).textTheme.caption!.copyWith(color: _selectedIndex == 3 ? UiColorHelper.mainBlue : Colors.black),
+                        )
+                      ],
+                    );
+                  }
+                }),
             label: 'Sepet'),
         BottomNavigationBarItem(
             icon: Column(
